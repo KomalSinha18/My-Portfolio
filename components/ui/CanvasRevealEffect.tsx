@@ -1,4 +1,3 @@
-"use client";
 import { cn } from "@/lib/utils";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import React, { useMemo, useRef } from "react";
@@ -96,7 +95,7 @@ interface ShaderProps {
   source: string;
   uniforms: {
     [key: string]: {
-      value: number | number[] | number[][];
+      value: number | number[] | number[][] | THREE.Vector2;
       type: string;
     };
   };
@@ -104,7 +103,8 @@ interface ShaderProps {
 
 const Shader: React.FC<ShaderProps> = ({ source, uniforms }) => {
   const { size } = useThree();
-  const ref = useRef<THREE.Mesh>();
+  const ref = useRef<THREE.Mesh | null>(null); // Explicitly typing the ref
+
   const material = useMemo(() => {
     const shaderUniforms = {
       u_time: { value: 0 },
@@ -136,7 +136,8 @@ const Shader: React.FC<ShaderProps> = ({ source, uniforms }) => {
 
   useFrame(({ clock }) => {
     if (ref.current) {
-      ref.current.material.uniforms.u_time.value = clock.getElapsedTime();
+      const shaderMaterial = ref.current.material as THREE.ShaderMaterial; // Explicitly cast the material
+      shaderMaterial.uniforms.u_time.value = clock.getElapsedTime();
     }
   });
 
